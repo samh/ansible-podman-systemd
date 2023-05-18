@@ -1,3 +1,3 @@
 # Ansible Collection - samh.podman_systemd
 
-Documentation for the collection.
+Ansible Collection for managing podman services.
