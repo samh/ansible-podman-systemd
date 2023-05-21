@@ -1,0 +1,45 @@
+---
+# tasks file for quadlet_unit
+
+- name: "Configure quadlet service as {{ quadlet_unit_user }}"
+  become: true
+  become_user: "{{ quadlet_unit_user }}"
+  tags: [quadlet service, podman, quadlet]
+  block:
+    - name: Create podman systemd directory (quadlet)
+      ansible.builtin.file:
+        path: "{{ quadlet_systemd_directory | expanduser }}"
+        state: directory
+        mode: 0700
+
+    # TODO: not sure how to handle environment file yet.
+    - name: Create environment file for quadlet service
+      when: quadlet_environment
+      ansible.builtin.template:
+        src: "quadlet_unit.env.j2"
+        dest: "{{ quadlet_environment_file }}"
+        mode: 0600
+      notify:
+        - "restart {{ quadlet_unit_name }}"
+
+    - name: Create systemd service
+      ansible.builtin.template:
+        src: "{{ quadlet_unit_template }}"
+        dest: "{{ quadlet_systemd_directory | expanduser }}/{{ quadlet_unit_name }}.{{ quadlet_unit_extension }}"
+        mode: 0600
+      notify:
+        - reload systemd user services
+        - "restart {{ quadlet_unit_name }}"
+
+    - name: Flush handlers
+      ansible.builtin.meta: flush_handlers
+
+    # generated service should be automatically enabled;
+    # see 'man podman-systemd.unit'
+    - name: "Start service {{ quadlet_unit_name }}"
+      when: "quadlet_unit_state"
+      ansible.builtin.systemd:
+        name: "{{ quadlet_unit_name }}"
+        state: "{{ quadlet_unit_state }}"
+        scope: user
+      ignore_errors: "{{ ansible_check_mode }}"

@@ -1,0 +1,29 @@
+# {{ ansible_managed }}
+
+{% if 'Unit' not in quadlet_unit_config %}
+[Unit]
+Description={{ quadlet_unit_description }}
+Documentation=man:podman-systemd.unit(5)
+Wants={{ quadlet_unit_wants }}
+After={{ quadlet_unit_after }}
+{% endif %}
+
+{# Borrowed from notmycloud.systemd_unit #}
+{% for section, options in quadlet_unit_config.items() %}
+[{{ section }}]
+{% for option, values in options.items() %}
+{% if values is string or values is number %}
+{{ option }}={{ values }}
+{% else %}{# Else for values is string #}
+{% for value in values %}
+{{ option }}={{ value }}
+{% endfor %}{# End of values for loop #}
+{% endif %}{# End of option is string #}
+{% endfor %}{# End of option for loop#}
+
+{% endfor %}{# End of section for loop #}
+
+{% if 'Install' not in quadlet_unit_config %}
+[Install]
+WantedBy=default.target
+{% endif %}

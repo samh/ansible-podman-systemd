@@ -1,0 +1,27 @@
+---
+# defaults file for quadlet_unit
+quadlet_unit_name: ""
+quadlet_unit_user: ""
+
+quadlet_unit_extension: "container"
+quadlet_unit_state: "started"
+
+# Defaults to the built-in template, but can be overridden
+quadlet_unit_template: "quadlet_unit.j2"
+quadlet_systemd_directory: "~/.config/containers/systemd"
+quadlet_environment_file: "~/.config/{{ quadlet_unit_name }}.env"
+quadlet_environment: {}
+quadlet_openai_api_key: ""
+
+# Allow specifying entire unit config as a dict
+quadlet_unit_config:
+  Container:
+    Image: "docker.io/library/busybox"
+    EnvironmentFile: "{{ quadlet_environment_file | expanduser }}"
+    PublishPort: "8000:8000"
+    RunInit: "true"
+
+# These are used if the "Unit" section is not specified in quadlet_unit_config
+quadlet_unit_description: "{{ quadlet_unit_name }} podman service"
+quadlet_unit_wants: "network-online.target"
+quadlet_unit_after: "network-online.target"

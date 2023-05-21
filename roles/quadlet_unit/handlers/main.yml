@@ -1,0 +1,17 @@
+---
+# handlers file for quadlet_unit
+- name: Reload systemd user services
+  become: true
+  become_user: "{{ quadlet_unit_user }}"
+  ansible.builtin.systemd:
+    daemon_reload: true
+    scope: user
+
+- name: "Restart {{ quadlet_unit_name }}"
+  become: true
+  become_user: "{{ quadlet_unit_user }}"
+  ansible.builtin.systemd:
+    name: "{{ quadlet_unit_name }}"
+    state: restarted
+    scope: user
+  ignore_errors: "{{ ansible_check_mode }}"
