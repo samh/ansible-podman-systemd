@@ -1,0 +1,47 @@
+---
+argument_specs:
+  # tasks/main.yml entry point
+  main:
+    short_description: Install podgrab (podman container)
+    options:
+      quadlet_unit_name:
+        type: "str"
+        required: true
+        description: "The name of the systemd service unit"
+
+      quadlet_unit_user:
+        type: "str"
+        required: true
+        description: "The user to run the systemd service unit"
+
+      quadlet_unit_extension:
+        type: "str"
+        required: false
+        default: "container"
+        description: "The type of quadlet unit"
+
+      quadlet_unit_config:
+        type: "dict"
+        required: false
+        default: {}
+        description: >
+          A dictionary of unit file configuration options (one of
+          quadlet_unit_config or quadlet_unit_text must be specified,
+          or a custom quadlet_unit_template must be provided)
+
+      quadlet_unit_text:
+        type: "str"
+        required: false
+        default: ""
+        description: >
+          A string containing the unit file configuration (one of
+          quadlet_unit_config or quadlet_unit_text must be specified,
+          or a custom quadlet_unit_template must be provided)
+
+      quadlet_unit_template:
+        type: "str"
+        required: false
+        default: "quadlet_unit.j2"
+        description: >
+          The name of a template to use for the unit file instead
+          the built-in template
