@@ -6,6 +6,22 @@
   become_user: "{{ quadlet_unit_user }}"
   tags: [quadlet service, podman, quadlet]
   block:
+    - name: Check variables
+      ansible.builtin.assert:
+        that:
+          - "quadlet_unit_name is defined"
+          - "quadlet_unit_user is defined"
+
+    - name: If dict config is specified, text should not be
+      when: quadlet_unit_config
+      ansible.builtin.assert:
+        that: "quadlet_unit_text == ''"
+
+    - name: If text config is specified, dict should not be
+      when: quadlet_unit_text
+      ansible.builtin.assert:
+        that: "quadlet_unit_config == {}"
+
     - name: Create podman systemd directory (quadlet)
       ansible.builtin.file:
         path: "{{ quadlet_systemd_directory | expanduser }}"
@@ -20,7 +36,7 @@
         dest: "{{ quadlet_environment_file }}"
         mode: 0600
       notify:
-        - "restart {{ quadlet_unit_name }}"
+        - "Restart {{ quadlet_unit_name }}"
 
     - name: Create systemd service
       ansible.builtin.template:
@@ -28,8 +44,8 @@
         dest: "{{ quadlet_systemd_directory | expanduser }}/{{ quadlet_unit_name }}.{{ quadlet_unit_extension }}"
         mode: 0600
       notify:
-        - reload systemd user services
-        - "restart {{ quadlet_unit_name }}"
+        - Reload systemd user services
+        - "Restart {{ quadlet_unit_name }}"
 
     - name: Flush handlers
       ansible.builtin.meta: flush_handlers

@@ -13,13 +13,8 @@ quadlet_environment_file: "~/.config/{{ quadlet_unit_name }}.env"
 quadlet_environment: {}
 quadlet_openai_api_key: ""
 
-# Allow specifying entire unit config as a dict
-quadlet_unit_config:
-  Container:
-    Image: "docker.io/library/busybox"
-    EnvironmentFile: "{{ quadlet_environment_file | expanduser }}"
-    PublishPort: "8000:8000"
-    RunInit: "true"
+quadlet_unit_config: {}
+quadlet_unit_text: ""
 
 # These are used if the "Unit" section is not specified in quadlet_unit_config
 quadlet_unit_description: "{{ quadlet_unit_name }} podman service"

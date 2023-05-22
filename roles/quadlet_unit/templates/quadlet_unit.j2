@@ -1,5 +1,6 @@
 # {{ ansible_managed }}
 
+{% if quadlet_unit_config %}
 {% if 'Unit' not in quadlet_unit_config %}
 [Unit]
 Description={{ quadlet_unit_description }}
@@ -26,4 +27,9 @@ After={{ quadlet_unit_after }}
 {% if 'Install' not in quadlet_unit_config %}
 [Install]
 WantedBy=default.target
+{% endif %}{# 'Install' #}
+{% elif quadlet_unit_text %}
+{{ quadlet_unit_text }}
+{% else %}
+# ERROR: unit config not found
 {% endif %}

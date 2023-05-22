@@ -40,6 +40,8 @@ The following variables are optional:
 
 The unit file can be generated in multiple ways:
 
+- `quadlet_unit_text` - a string containing the text of the unit file
+  (specify either this or `quadlet_unit_config`, but not both)
 - `quadlet_unit_config` - a dictionary of unit file configuration options
 - `quadlet_unit_template` - a path to a unit file template to use instead
   of generating one from the built-in template
@@ -51,7 +53,48 @@ A list of other roles hosted on Galaxy should go here, plus any details in regar
 
 Example Playbook
 ----------------
-Generating a `container` unit using `quadlet_unit_config`:
+
+Using normal systemd syntax instead of a YAML dictionary (this might be
+preferable, since the systemd unit syntax is already pretty simple):
+
+```yaml
+- hosts: servers
+  vars:
+    # These are some example variables (not directly related to the role)
+    # that might be defined in, for example, `group_vars`, inventory, or the
+    # defaults file of another role.
+    podgrab_user: podgrab
+    podgrab_image_tag: latest
+    podgrab_port: 8080
+
+  tasks:
+    - name: configure systemd unit
+      ansible.builtin.import_role:
+        name: samh.podman_systemd.quadlet_unit
+      vars:
+        quadlet_unit_name: podgrab
+        quadlet_unit_user: "{{ podgrab_user }}"
+        quadlet_unit_text: |
+          [Unit]
+          Description=Podgrab podcast manager
+          Wants=network-online.target
+          After=network-online.target
+
+          [Container]
+          Image=docker.io/akhilrex/podgrab:{{ podgrab_image_tag }}
+          PublishPort={{ podgrab_port }}:8080
+          Environment=CHECK_FREQUENCY=240
+          Environment=PASSWORD=supersecret
+
+          [Install]
+          # Start by default on boot
+          WantedBy=multi-user.target default.target
+
+```
+
+Generating a `container` unit using `quadlet_unit_config` in YAML syntax
+(I'm not sure if this is a useful addition or just adds an extra layer
+of translation for no benefit):
 
 ```yaml
 - hosts: servers
@@ -80,6 +123,7 @@ Generating a `container` unit using `quadlet_unit_config`:
             PublishPort: "{{ podgrab_port }}:8080"
             # For options that are listed multiple times, use a list
             # of strings (*not a list of dictionaries*)
+            # TODO: support dictionary
             Environment:
               - "CHECK_FREQUENCY=240"
               - "PASSWORD=supersecret"
