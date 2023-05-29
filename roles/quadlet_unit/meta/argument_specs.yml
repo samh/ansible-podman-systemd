@@ -2,7 +2,7 @@
 argument_specs:
   # tasks/main.yml entry point
   main:
-    short_description: Install podgrab (podman container)
+    short_description: Configure podman quadlet systemd units
     options:
       quadlet_unit_name:
         type: "str"
